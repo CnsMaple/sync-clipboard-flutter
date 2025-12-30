@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logger/logger.dart';
+import 'package:path/path.dart' as p;
 import 'package:sync_clipboard_flutter/dio/sync_clipboard_client.dart';
 import 'package:sync_clipboard_flutter/model/clipboard/clipboard.dart' as clipboard_model;
 
@@ -160,11 +161,19 @@ class _ShareFileUploadPageState extends State<ShareFileUploadPage> {
       final fileSha256 = sha256.convert(bytes).toString();
       _log.d('文件 SHA256: $fileSha256');
 
+      // 根据文件扩展名判断类型
+      final ext = p.extension(filename).toLowerCase(); // 返回 .jpg 格式
+      const imageExtensions = ['.jpg', '.jpeg', '.gif', '.bmp', '.png', '.heic', '.heif', '.webp', '.avif'];
+      final clipboardType = imageExtensions.contains(ext)
+          ? clipboard_model.ClipboardType.image
+          : clipboard_model.ClipboardType.file;
+      _log.d('文件类型: ${clipboardType.name}');
+
       // 更新 SyncClipboard.json
       final clipboard = clipboard_model.Clipboard(
         file: filename,
         clipboard: fileSha256,
-        type: clipboard_model.ClipboardType.file,
+        type: clipboardType,
       );
       await client.putSyncClipboardJson(clipboard);
       
