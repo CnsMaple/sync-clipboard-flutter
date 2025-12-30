@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:archive/archive.dart';
+import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -384,10 +385,14 @@ class _DebugPageState extends State<DebugPage> {
         },
       );
 
+      // 计算文件的 SHA256
+      final fileSha256 = sha256.convert(fileBytes).toString();
+      _log.d('文件 SHA256: $fileSha256');
+
       // 4. 更新 SyncClipboard.json
       final clipboard = clipboard_model.Clipboard(
         file: filename,
-        clipboard: '',
+        clipboard: fileSha256,
         type: clipboard_model.ClipboardType.file,
       );
       await client.putSyncClipboardJson(clipboard);

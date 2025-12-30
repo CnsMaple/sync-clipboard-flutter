@@ -1,3 +1,4 @@
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -154,11 +155,15 @@ class _ShareFileUploadPageState extends State<ShareFileUploadPage> {
           }
         },
       );
-      
+
+      // 计算文件的 SHA256
+      final fileSha256 = sha256.convert(bytes).toString();
+      _log.d('文件 SHA256: $fileSha256');
+
       // 更新 SyncClipboard.json
       final clipboard = clipboard_model.Clipboard(
         file: filename,
-        clipboard: '',
+        clipboard: fileSha256,
         type: clipboard_model.ClipboardType.file,
       );
       await client.putSyncClipboardJson(clipboard);
